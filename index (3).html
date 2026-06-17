@@ -1,0 +1,339 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:transparent}
+#app{display:flex;flex-direction:column;height:680px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-primary)}
+#topbar{background:linear-gradient(135deg,#7F77DD,#534AB7);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+#topbar .logo{display:flex;align-items:center;gap:10px;color:#fff}
+#topbar .logo .avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+#topbar .logo .name{font-size:16px;font-weight:500;color:#fff}
+#topbar .logo .sub{font-size:11px;color:rgba(255,255,255,0.75)}
+#topbar .badges{display:flex;gap:6px}
+#topbar .badge{font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,0.2);color:#fff;border:0.5px solid rgba(255,255,255,0.3)}
+#sidebar{display:flex;flex-direction:row;flex:1;overflow:hidden}
+#hist{width:180px;border-right:0.5px solid var(--color-border-tertiary);display:flex;flex-direction:column;background:var(--color-background-secondary)}
+#hist-head{padding:10px 12px;font-size:12px;font-weight:500;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:6px}
+#hist-list{flex:1;overflow-y:auto;padding:8px}
+.hist-item{padding:8px 10px;border-radius:var(--border-radius-md);font-size:12px;color:var(--color-text-secondary);cursor:pointer;margin-bottom:4px;border:0.5px solid transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-item:hover,.hist-item.active{background:var(--color-background-primary);border-color:var(--color-border-tertiary);color:var(--color-text-primary)}
+#new-chat{margin:8px;padding:8px;border-radius:var(--border-radius-md);border:0.5px dashed var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+#new-chat:hover{background:var(--color-background-primary);color:var(--color-text-primary)}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:10px;max-width:100%}
+.msg.user{flex-direction:row-reverse}
+.msg-avatar{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.msg.bot .msg-avatar{background:#7F77DD;color:#fff}
+.msg.user .msg-avatar{background:var(--color-background-info);color:var(--color-text-info)}
+.msg-bubble{max-width:75%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.6;color:var(--color-text-primary)}
+.msg.bot .msg-bubble{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-top-left-radius:4px}
+.msg.user .msg-bubble{background:#7F77DD;color:#fff;border-top-right-radius:4px}
+.msg-bubble .cap{font-size:11px;opacity:0.6;margin-top:4px}
+.img-preview{width:120px;height:90px;border-radius:var(--border-radius-md);object-fit:cover;border:0.5px solid var(--color-border-tertiary);display:block;margin-bottom:6px}
+#toolbar{padding:8px 12px;border-top:0.5px solid var(--color-border-tertiary);display:flex;gap:6px;align-items:center;background:var(--color-background-secondary)}
+.tool-btn{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:12px;cursor:pointer}
+.tool-btn:hover{background:var(--color-background-secondary);border-color:var(--color-border-secondary);color:var(--color-text-primary)}
+.tool-btn i{font-size:15px}
+#lang-sel{padding:5px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:12px;cursor:pointer;margin-left:auto}
+#input-area{padding:10px 12px;border-top:0.5px solid var(--color-border-tertiary);display:flex;gap:8px;align-items:flex-end}
+#user-input{flex:1;padding:10px 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:14px;resize:none;font-family:var(--font-sans);min-height:40px;max-height:100px;line-height:1.5;outline:none}
+#user-input:focus{border-color:#7F77DD}
+#send-btn{width:40px;height:40px;border-radius:50%;background:#7F77DD;border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+#send-btn:hover{background:#534AB7}
+#send-btn:disabled{background:var(--color-border-tertiary);cursor:not-allowed}
+.typing{display:flex;gap:4px;align-items:center;padding:4px 0}
+.dot{width:6px;height:6px;border-radius:50%;background:#7F77DD;animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:0.2s}
+.dot:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,80%,100%{opacity:0.3}40%{opacity:1}}
+#upload-input{display:none}
+.cap-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.cap-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(127,119,221,0.12);color:#534AB7;border:0.5px solid rgba(127,119,221,0.3)}
+.voice-btn.listening{background:#F0997B !important;border-color:#D85A30 !important;color:#fff !important}
+#file-preview{padding:6px 12px;background:var(--color-background-secondary);border-top:0.5px solid var(--color-border-tertiary);display:none;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary)}
+#file-preview .fp-name{color:var(--color-text-primary);font-weight:500}
+#file-preview .fp-remove{cursor:pointer;color:var(--color-text-secondary);margin-left:auto}
+</style>
+
+<h2 class="sr-only">Akshi's Bot — AI-powered chatbot with image analysis, voice, multilingual support, and more</h2>
+
+<div id="app">
+  <div id="topbar">
+    <div class="logo">
+      <div class="avatar">A</div>
+      <div>
+        <div class="name">Akshi's Bot ✨</div>
+        <div class="sub">AI Powered • Always Learning</div>
+      </div>
+    </div>
+    <div class="badges">
+      <span class="badge"><i class="ti ti-brain"></i> Smart AI</span>
+      <span class="badge"><i class="ti ti-globe"></i> Multilingual</span>
+      <span class="badge"><i class="ti ti-bolt"></i> Live</span>
+    </div>
+  </div>
+
+  <div id="sidebar">
+    <div id="hist">
+      <div id="hist-head"><i class="ti ti-history" style="font-size:14px"></i> Chat History</div>
+      <div id="hist-list">
+        <div class="hist-item active">Welcome chat</div>
+        <div class="hist-item">Code helper session</div>
+        <div class="hist-item">Image analysis</div>
+        <div class="hist-item">Research deep dive</div>
+        <div class="hist-item">Language practice</div>
+      </div>
+      <button id="new-chat" onclick="newChat()"><i class="ti ti-plus" style="font-size:14px"></i> New Chat</button>
+    </div>
+
+    <div id="main">
+      <div id="msgs"></div>
+
+      <div id="file-preview">
+        <i class="ti ti-file" style="font-size:16px"></i>
+        <span class="fp-name" id="fp-name"></span>
+        <span class="fp-remove" onclick="removeFile()"><i class="ti ti-x" style="font-size:14px"></i></span>
+      </div>
+
+      <div id="toolbar">
+        <button class="tool-btn" onclick="document.getElementById('upload-input').click()" title="Upload file">
+          <i class="ti ti-upload"></i> Upload
+        </button>
+        <input type="file" id="upload-input" accept="image/*,.pdf,.txt,.csv,.docx,.xlsx,.js,.py,.cpp,.java" onchange="handleFile(event)">
+        <button class="tool-btn" onclick="genImage()" title="Generate image">
+          <i class="ti ti-photo"></i> Image Gen
+        </button>
+        <button class="tool-btn voice-btn" id="voice-btn" onclick="toggleVoice()" title="Voice input">
+          <i class="ti ti-microphone"></i> Voice
+        </button>
+        <button class="tool-btn" onclick="codeMode()" title="Code helper">
+          <i class="ti ti-code"></i> Code
+        </button>
+        <select id="lang-sel" onchange="setLang(this.value)">
+          <option value="en">🌐 English</option>
+          <option value="hi">🇮🇳 Hindi</option>
+          <option value="es">🇪🇸 Spanish</option>
+          <option value="fr">🇫🇷 French</option>
+          <option value="de">🇩🇪 German</option>
+          <option value="ja">🇯🇵 Japanese</option>
+          <option value="zh">🇨🇳 Chinese</option>
+          <option value="ar">🇸🇦 Arabic</option>
+          <option value="pt">🇧🇷 Portuguese</option>
+          <option value="ru">🇷🇺 Russian</option>
+        </select>
+      </div>
+
+      <div id="input-area">
+        <textarea id="user-input" placeholder="Ask Akshi's Bot anything..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+        <button id="send-btn" onclick="sendMsg()"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const MSGS_EL = document.getElementById('msgs');
+let history = [];
+let pendingFile = null;
+let lang = 'en';
+let isListening = false;
+let recognition = null;
+
+const langNames = {en:'English',hi:'Hindi',es:'Spanish',fr:'French',de:'German',ja:'Japanese',zh:'Chinese',ar:'Arabic',pt:'Portuguese',ru:'Russian'};
+
+const caps = ['Image Analysis','Image Generation','Voice Input','Code Help','Research','Multi-language','Personal Assistant','No Upload Limit','Chat History','File Analysis'];
+
+function renderCaps(){
+  return `<div class="cap-row">${caps.map(c=>`<span class="cap-badge">${c}</span>`).join('')}</div>`;
+}
+
+function addMsg(role, html, time){
+  const el = document.createElement('div');
+  el.className = `msg ${role}`;
+  const label = role==='bot'?'A':'U';
+  const ts = time || new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  el.innerHTML = `
+    <div class="msg-avatar">${label}</div>
+    <div class="msg-bubble">${html}<div class="cap">${ts}</div></div>`;
+  MSGS_EL.appendChild(el);
+  MSGS_EL.scrollTop = MSGS_EL.scrollHeight;
+  return el;
+}
+
+function showTyping(){
+  const el = document.createElement('div');
+  el.className = 'msg bot';
+  el.id = 'typing';
+  el.innerHTML = `<div class="msg-avatar">A</div><div class="msg-bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  MSGS_EL.appendChild(el);
+  MSGS_EL.scrollTop = MSGS_EL.scrollHeight;
+}
+
+function removeTyping(){
+  const t = document.getElementById('typing');
+  if(t) t.remove();
+}
+
+async function sendMsg(){
+  const inp = document.getElementById('user-input');
+  const text = inp.value.trim();
+  if(!text && !pendingFile) return;
+
+  let displayHtml = text ? text.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') : '';
+  if(pendingFile && pendingFile.type.startsWith('image/')){
+    displayHtml = `<img src="${pendingFile.dataUrl}" class="img-preview"><br>${displayHtml}`;
+  } else if(pendingFile){
+    displayHtml = `<i class="ti ti-file" style="font-size:16px;vertical-align:-2px"></i> <b>${pendingFile.name}</b><br>${displayHtml}`;
+  }
+
+  addMsg('user', displayHtml || '(file uploaded)');
+  inp.value = '';
+  inp.style.height = 'auto';
+  document.getElementById('send-btn').disabled = true;
+
+  let apiMessages = [...history];
+  let userContent = [];
+
+  if(pendingFile){
+    if(pendingFile.type.startsWith('image/')){
+      userContent.push({type:'image',source:{type:'base64',media_type:pendingFile.type,data:pendingFile.dataUrl.split(',')[1]}});
+    } else {
+      userContent.push({type:'text',text:`[Attached file: ${pendingFile.name}]\n`});
+    }
+  }
+  if(text) userContent.push({type:'text',text});
+  if(userContent.length===1 && userContent[0].type==='text') userContent = userContent[0].text;
+
+  apiMessages.push({role:'user',content:userContent});
+
+  const sysLang = lang!=='en' ? ` Always respond in ${langNames[lang]}.` : '';
+
+  showTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system:`You are Akshi's Bot — a brilliant, friendly, all-knowing AI assistant. You help with absolutely anything: coding, research, image analysis, creative writing, math, personal advice, languages, planning, and more. You are trained on vast knowledge and give accurate, helpful, detailed answers. Be warm, clear, and engaging.${sysLang}`,
+        messages: apiMessages
+      })
+    });
+    const data = await res.json();
+    removeTyping();
+
+    const reply = data.content?.map(b=>b.text||'').join('') || 'Sorry, I could not get a response. Please try again.';
+    const formattedReply = reply
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/`([^`]+)`/g,'<code style="background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;font-family:var(--font-mono);font-size:13px">$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+      .replace(/\n/g,'<br>');
+
+    addMsg('bot', formattedReply);
+    history.push({role:'user',content: text || '(file)'});
+    history.push({role:'assistant',content: reply});
+
+    if(history.length > 20) history = history.slice(-20);
+
+    addToHistSidebar(text || pendingFile?.name || 'File upload');
+
+  } catch(e){
+    removeTyping();
+    addMsg('bot','<span style="color:var(--color-text-danger)">Connection error. Please check your network and try again.</span>');
+  }
+
+  document.getElementById('send-btn').disabled = false;
+  removeFile();
+}
+
+function addToHistSidebar(text){
+  const list = document.getElementById('hist-list');
+  const item = document.createElement('div');
+  item.className = 'hist-item';
+  item.textContent = text.slice(0,28)+(text.length>28?'…':'');
+  list.prepend(item);
+}
+
+function handleFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingFile = {name:file.name, type:file.type, dataUrl:ev.target.result};
+    document.getElementById('fp-name').textContent = file.name;
+    document.getElementById('file-preview').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+
+function removeFile(){
+  pendingFile = null;
+  document.getElementById('file-preview').style.display = 'none';
+}
+
+function genImage(){
+  document.getElementById('user-input').value = 'Generate a beautiful image of ';
+  document.getElementById('user-input').focus();
+}
+
+function codeMode(){
+  document.getElementById('user-input').value = 'Help me write code for ';
+  document.getElementById('user-input').focus();
+}
+
+function setLang(l){
+  lang = l;
+  const lname = langNames[l];
+  addMsg('bot', `🌐 Language switched to <strong>${lname}</strong>. I'll respond in ${lname} now.`);
+}
+
+function toggleVoice(){
+  const btn = document.getElementById('voice-btn');
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    addMsg('bot','Voice input is not supported in this browser. Try Chrome for best results!');
+    return;
+  }
+  if(isListening){
+    recognition && recognition.stop();
+    isListening=false;
+    btn.classList.remove('listening');
+    btn.innerHTML='<i class="ti ti-microphone"></i> Voice';
+    return;
+  }
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = lang==='hi'?'hi-IN':lang==='es'?'es-ES':lang==='fr'?'fr-FR':lang==='de'?'de-DE':lang==='ja'?'ja-JP':lang==='zh'?'zh-CN':lang==='ar'?'ar-SA':'en-US';
+  recognition.onresult = e => {
+    document.getElementById('user-input').value = e.results[0][0].transcript;
+  };
+  recognition.onend = () => {
+    isListening=false;
+    btn.classList.remove('listening');
+    btn.innerHTML='<i class="ti ti-microphone"></i> Voice';
+  };
+  recognition.start();
+  isListening=true;
+  btn.classList.add('listening');
+  btn.innerHTML='<i class="ti ti-microphone"></i> Listening...';
+}
+
+function newChat(){
+  history = [];
+  MSGS_EL.innerHTML='';
+  removeFile();
+  showWelcome();
+  document.querySelectorAll('.hist-item').forEach(i=>i.classList.remove('active'));
+  document.querySelector('.hist-item').classList.add('active');
+}
+
+function showWelcome(){
+  addMsg('bot', `👋 <strong>Welcome to Akshi's Bot!</strong> I'm your all-in-one AI assistant.<br><br>I can help you with <strong>anything</strong> — just ask! Here's what I can do:${renderCaps()}`);
+}
+
+showWelcome();
+</script>
